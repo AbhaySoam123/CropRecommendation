@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Recommendation System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2ecc71;
+            --secondary-color: #27ae60;
+            --accent-color: #f39c12;
+            --light-bg: #f8f9fa;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #d4fc79, #96e6a1);
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+        
+        .container {
+            max-width: 1200px;
+        }
+        
+        .main-card {
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            background-color: rgba(255, 255, 255, 0.95);
+            margin-top: 40px;
+            margin-bottom: 40px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .main-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        
+        .header-section {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            padding: 20px;
+            color: white;
+            border-radius: 20px 20px 0 0;
+        }
+        
+        h2 {
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .form-section {
+            padding: 30px;
+        }
+        
+        .form-floating {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(46, 204, 113, 0.25);
+        }
+        
+        .slider-container {
+            position: relative;
+            padding-bottom: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #777;
+            margin-top: 5px;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            border: none;
+            font-weight: 600;
+            padding: 12px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4);
+        }
+        
+        .result-section {
+            padding: 25px;
+            background-color: var(--light-bg);
+            border-radius: 12px;
+            margin-top: 20px;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .crop-icon {
+            font-size: 2.5rem;
+            color: var(--accent-color);
+            margin-bottom: 15px;
+        }
+        
+        .crop-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        .tooltip-container {
+            display: inline-block;
+            position: relative;
+            margin-left: 5px;
+        }
+        
+        .tooltip-icon {
+            color: #aaa;
+            cursor: pointer;
+        }
+        
+        .tooltip-text {
+            visibility: hidden;
+            width: 250px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.85rem;
+        }
+        
+        .tooltip-container:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        /* Slider styling */
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #e0e0e0;
+            outline: none;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: var(--secondary-color);
+            transform: scale(1.1);
+        }
+        
+        .slider-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 10px;
+            color: #555;
+        }
+        
+        .value-display {
+            position: absolute;
+            right: 0;
+            top: 0;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 2px 10px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        .progress {
+            height: 5px;
+            margin-bottom: 30px;
+        }
+        
+        .progress-bar {
+            background-color: var(--primary-color);
+        }
+        
+        .spinner-container {
+            display: none;
+            text-align: center;
+            padding: 20px 0;
+        }
+        
+        .spinner-border {
+            color: var(--primary-color);
+            width: 3rem;
+            height: 3rem;
+        }
+        
+        .info-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .info-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--secondary-color);
+        }
+        
+        @media (max-width: 768px) {
+            .main-card {
+                margin-top: 20px;
+                margin-bottom: 20px;
+            }
+            
+            .form-section {
+                padding: 20px;
+            }
+            
+            .crop-icon {
+                font-size: 2rem;
+            }
+            
+            .crop-name {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10">
+                <div class="main-card">
+                    <div class="header-section text-center">
+                        <h2><i class="fas fa-seedling me-2"></i>Smart Crop Recommendation System</h2>
+                        <p class="subtitle">Enter your soil and climate data to get personalized crop suggestions</p>
+                    </div>
+                    
+                    <div class="form-section">
+                        <div class="progress" id="formProgress">
+                            <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                        </div>
+                        
+                        <form id="cropForm" method="post" action="/predict">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="slider-container">
+                                        <div class="d-flex justify-content-between">
+                                            <span class="slider-label">Nitrogen (N)
+                                                <span class="tooltip-container">
+                                                    <i class="fas fa-info-circle tooltip-icon"></i>
+                                                    <span class="tooltip-text">Nitrogen content in soil (kg/ha). Typical range: 0-140 kg/ha</span>
+                                                </span>
+                                            </span>
+                                            <span class="value-display" id="N-value">70</span>
+                                        </div>
+                                        <input type="range" name="N" id="N" min="0" max="140" value="70" step="1">
+                                        <div class="range-labels">
+                                            <span>Low</span>
+                                            <span>Medium</span>
+                                            <span>High</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="slider-container">
+                                        <div class="d-flex justify-content-between">
+                                            <span class="slider-label">Phosphorus (P)
+                                                <span class="tooltip-container">
+                                                    <i class="fas fa-info-circle tooltip-icon"></i>
+                                                    <span class="tooltip-text">Phosphorus content in soil (kg/ha). Typical range: 5-140 kg/ha</span>
+                                                </span>
+                                            </span>
+                                            <span class="value-display" id="P-value">50</span>
+                                        </div>
+                                        <input type="range" name="P" id="P" min="0" max="140" value="50" step="1">
+                                        <div class="range-labels">
+                                            <span>Low</span>
+                                            <span>Medium</span>
+                                            <span>High</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="slider-container">
+                                        <div class="d-flex justify-content-between">
+                                            <span class="slider-label">Potassium (K)
+                                                <span class="tooltip-container">
+                                                    <i class="fas fa-info-circle tooltip-icon"></i>
+                                                    <span class="tooltip-text">Potassium content in soil (kg/ha). Typical range: 5-200 kg/ha</span>
+                                                </span>
+                                            </span>
+                                            <span class="value-display" id="K-value">100</span>
+                                        </div>
+                                        <input type="range" name="K" id="K" min="0" max="200" value="100" step="1">
+                                        <div class="range-labels">
+                                            <span>Low</span>
+                                            <span>Medium</span>
+                                            <span>High</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="slider-container">
+                                        <div class="d-flex justify-content-between">
+                                            <span class="slider-label">Temperature (°C)
+                                                <span class="tooltip-container">
+                                                    <i class="fas fa-info-circle tooltip-icon"></i>
+                                                    <span class="tooltip-text">Average temperature in Celsius. Most crops grow between 10-40°C</span>
+                                                </span>
+                                            </span>
+                                            <span class="value-display" id="temperature-value">25</span>
+                                        </div>
+                                        <input type="range" name="temperature" id="temperature" min="0" max="50" value="25" step="0.1">
+                                        <div class="range-labels">
+                                            <span>Cold</span>
+                                            <span>Moderate</span>
+                                            <span>Hot</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="slider-container">
+                                        <div class="d-flex justify-content-between">
+                                            <span class="slider-label">Humidity (%)
+                                                <span class="tooltip-container">
+                                                    <i class="fas fa-info-circle tooltip-icon"></i>
+                                                    <span class="tooltip-text">Relative humidity percentage. Range: 0-100%</span>
+                                                </span>
+                                            </span>
+                                            <span class="value-display" id="humidity-value">60</span>
+                                        </div>
+                                        <input type="range" name="humidity" id="humidity" min="0" max="100" value="60" step="1">
+                                        <div class="range-labels">
+                                            <span>Dry</span>
+                                            <span>Moderate</span>
+                                            <span>Humid</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="slider-container">
+                                        <div class="d-flex justify-content-between">
+                                            <span class="slider-label">Soil pH
+                                                <span class="tooltip-container">
+                                                    <i class="fas fa-info-circle tooltip-icon"></i>
+                                                    <span class="tooltip-text">Soil pH level. Range: 0-14 (7 is neutral). Most crops prefer 5.5-7.5</span>
+                                                </span>
+                                            </span>
+                                            <span class="value-display" id="ph-value">7</span>
+                                        </div>
+                                        <input type="range" name="ph" id="ph" min="0" max="14" value="7" step="0.1">
+                                        <div class="range-labels">
+                                            <span>Acidic</span>
+                                            <span>Neutral</span>
+                                            <span>Alkaline</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="slider-container">
+                                        <div class="d-flex justify-content-between">
+                                            <span class="slider-label">Rainfall (mm)
+                                                <span class="tooltip-container">
+                                                    <i class="fas fa-info-circle tooltip-icon"></i>
+                                                    <span class="tooltip-text">Average rainfall in millimeters. Different crops need different amounts of water</span>
+                                                </span>
+                                            </span>
+                                            <span class="value-display" id="rainfall-value">100</span>
+                                        </div>
+                                        <input type="range" name="rainfall" id="rainfall" min="0" max="300" value="100" step="1">
+                                        <div class="range-labels">
+                                            <span>Low</span>
+                                            <span>Medium</span>
+                                            <span>High</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="spinner-container" id="loadingSpinner">
+                                <div class="spinner-border" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="mt-3">Analyzing your soil and climate data...</p>
+                            </div>
+                            
+                            <button type="submit" id="submitBtn" class="btn btn-success submit-btn w-100 mb-4">
+                                <i class="fas fa-seedling me-2"></i>Get Crop Recommendation
+                            </button>
+                            
+                            <div class="text-center">
+                                <button type="button" id="resetBtn" class="btn btn-outline-secondary">
+                                    <i class="fas fa-redo me-2"></i>Reset Form
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <div class="result-section text-center" id="resultSection">
+                            <div class="crop-icon">
+                                <i class="fas fa-leaf"></i>
+                            </div>
+                            <h3 class="crop-name" id="cropName">Rice</h3>
+                            <p class="crop-description" id="cropDescription">Based on your soil and climate data, we recommend growing rice. Rice thrives in the conditions you've described.</p>
+                            
+                            <div class="row mt-4">
+                                <div class="col-md-6">
+                                    <div class="info-card">
+                                        <div class="info-title"><i class="fas fa-temperature-high me-2"></i>Optimal Growing Conditions</div>
+                                        <p class="mb-0" id="growingConditions">Temperature: 20-30°C, Humidity: 70-90%</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-card">
+                                        <div class="info-title"><i class="fas fa-tint me-2"></i>Water Requirements</div>
+                                        <p class="mb-0" id="waterRequirements">Needs consistent water supply. Good irrigation essential.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <button class="btn btn-primary" id="newPredictionBtn">
+                                    <i class="fas fa-sync-alt me-2"></i>Make New Prediction
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('cropForm');
+            const sliders = form.querySelectorAll('input[type="range"]');
+            const progressBar = document.querySelector('.progress-bar');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const resultSection = document.getElementById('resultSection');
+            const submitBtn = document.getElementById('submitBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const newPredictionBtn = document.getElementById('newPredictionBtn');
+            
+            // Sample crop data - in a real app this would come from the backend
+            const cropData = {
+                'rice': {
+                    icon: 'seedling',
+                    description: 'Rice thrives in your soil conditions with good nitrogen levels and ample water. It prefers warm temperatures and high humidity.',
+                    growingConditions: 'Temperature: 20-30°C, Humidity: 70-90%, pH: 5.5-6.5',
+                    waterRequirements: 'Needs consistent water supply. Good irrigation essential.'
+                },
+                'wheat': {
+                    icon: 'wheat-awn',
+                    description: 'Wheat is well-suited for your conditions with moderate water requirements and balanced NPK levels.',
+                    growingConditions: 'Temperature: 15-24°C, Humidity: 50-70%, pH: 6.0-7.0',
+                    waterRequirements: 'Moderate water needs. Can withstand some drought conditions.'
+                },
+                'maize': {
+                    icon: 'corn',
+                    description: 'Maize (corn) would grow well in your soil with its good potassium content and warm conditions.',
+                    growingConditions: 'Temperature: 18-32°C, Humidity: 50-80%, pH: 5.8-7.0',
+                    waterRequirements: 'Regular watering needed, especially during flowering and grain filling.'
+                },
+                'chickpea': {
+                    icon: 'seedling',
+                    description: 'Chickpeas are suited to your soil conditions and can thrive with minimal water requirements.',
+                    growingConditions: 'Temperature: 15-25°C, Humidity: 40-60%, pH: 6.0-8.0',
+                    waterRequirements: 'Drought tolerant once established. Moderate watering needed.'
+                },
+                'kidney beans': {
+                    icon: 'leaf',
+                    description: 'Kidney beans would grow well in your conditions with balanced fertility and moderate temperatures.',
+                    growingConditions: 'Temperature: 17-30°C, Humidity: 50-70%, pH: 6.0-7.5',
+                    waterRequirements: 'Regular watering needed. Avoid waterlogging.'
+                }
+            };
+            
+            // Update progress bar - all sliders are filled by default
+            function updateProgressBar() {
+                progressBar.style.width = '100%';
+            }
+            
+            // Initialize
+            updateProgressBar();
+            
+            // Update value displays for range inputs
+            sliders.forEach(slider => {
+                const displayEl = document.getElementById(`${slider.id}-value`);
+                
+                slider.addEventListener('input', function() {
+                    if (displayEl) {
+                        displayEl.textContent = this.value;
+                    }
+                });
+            });
+            
+            // Form submission
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Show loading spinner
+                loadingSpinner.style.display = 'block';
+                submitBtn.disabled = true;
+                
+                // Simulate API call (remove in production and use actual fetch)
+                setTimeout(function() {
+                    loadingSpinner.style.display = 'none';
+                    
+                    // Get random crop for demonstration (replace with actual prediction)
+                    const crops = Object.keys(cropData);
+                    const randomCrop = crops[Math.floor(Math.random() * crops.length)];
+                    
+                    // Update result section
+                    document.getElementById('cropName').textContent = randomCrop.charAt(0).toUpperCase() + randomCrop.slice(1);
+                    document.getElementById('cropDescription').textContent = cropData[randomCrop].description;
+                    document.getElementById('growingConditions').textContent = cropData[randomCrop].growingConditions;
+                    document.getElementById('waterRequirements').textContent = cropData[randomCrop].waterRequirements;
+                    
+                    // Update crop icon
+                    const cropIconElement = document.querySelector('.crop-icon i');
+                    cropIconElement.className = `fas fa-${cropData[randomCrop].icon}`;
+                    
+                    // Show result
+                    resultSection.style.display = 'block';
+                    form.style.display = 'none';
+                }, 2000);
+            });
+            
+            // Reset button
+            resetBtn.addEventListener('click', function() {
+                form.reset();
+                
+                // Reset displayed values
+                sliders.forEach(slider => {
+                    const displayEl = document.getElementById(`${slider.id}-value`);
+                    if (displayEl) {
+                        displayEl.textContent = slider.value;
+                    }
+                });
+            });
+            
+            // New prediction button
+            newPredictionBtn.addEventListener('click', function() {
+                resultSection.style.display = 'none';
+                form.style.display = 'block';
+                submitBtn.disabled = false;
+            });
+        });
+    </script>
+</body>
+</html>
